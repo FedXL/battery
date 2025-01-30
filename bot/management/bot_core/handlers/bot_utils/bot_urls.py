@@ -1,7 +1,0 @@
-URL_WAREHOUSES = "http://web:8000/bot/warehouses/"
-URL_GET_DATE = "http://web:8000/bot/date_choice/"
-URL_DELIVERY_TYPE_CHECK = "http://web:8000/bot/delivery_type/"
-URL_TASK = "http://web:8000/bot/tasks/"
-URL_TASK_DATES = "http://web:8000/bot/task_dates/"
-URL_CREATE_USER = "http://web:8000/bot/new_user/"
-URL_ALARM = "http://web:8000/alarm/"

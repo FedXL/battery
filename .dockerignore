@@ -1,10 +1,34 @@
-wokefw;ldcelkds;lkfd;dslkf;sdlkfs;dlfks;fdlk;sldkf;lll# Byte-compiled / optimized / DLL files
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Environment
+
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-lexical_parser/management/wildberries_client/*
-# C extensions
-*.so
 
 # Distribution / packaging
 .Python
@@ -57,7 +81,6 @@ cover/
 *.log
 local_settings.py
 db.sqlite3
-db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -65,6 +88,8 @@ instance/
 
 # Scrapy stuff:
 .scrapy
+
+# Sphinx documentation
 docs/_build/
 
 # PyBuilder
@@ -84,19 +109,17 @@ ipython_config.py
 celerybeat-schedule
 
 # dotenv
-.env
-.env.*
 
-# virtualenv
+.venv
+
 venv/
 ENV/
-env/
 env.bak/
 venv.bak/
 
 # Spyder project settings
 .spyderproject
-.spyderworkspace
+.spyproject
 
 # Rope project settings
 .ropeproject
@@ -111,23 +134,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# Docker
-*.log
-*.pid
-*.seed
-*.pid.lock
-*.env
-.env.*
-
-# VS Code
-.vscode/
-
-# PyCharm
-.idea/

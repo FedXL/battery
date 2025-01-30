@@ -73,13 +73,11 @@ class ClientProfile(ProfileBase):
 class SellerProfile(ProfileBase):
     seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец')
 
-
     company_address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Адрес компании')
     company_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Название компании')
+
 
     class Meta:
         verbose_name = 'Профиль продавца'
         verbose_name_plural = 'Профили продавцов'
-
-
 

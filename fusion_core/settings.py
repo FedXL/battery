@@ -1,7 +1,7 @@
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
-
+VERSION='development'
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 SECRET_KEY = getenv('SECRET_KEY')
@@ -9,8 +9,8 @@ BOT_TOKEN = getenv('BOT_TOKEN')
 
 DEBUG = True
 CSRF_COOKIE_SECURE = False
-ALLOWED_HOSTS = ['127.0.0.1',]
-CSRF_TRUSTED_ORIGINS = [
+ALLOWED_HOSTS = ['127.0.0.1','nurbot.kz','www.nurbot.kz']
+CSRF_TRUSTED_ORIGINS = ['https://nurbot.kz',
                         'http://127.0.0.1',
                         'http://127.0.0.1:8000',
 ]
@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'bot.apps.BotConfig',
     'django_celery_beat',
     'phrases.apps.PhrasesConfig',
+    'services.apps.ServicesConfig',
+    'lottery.apps.LotteryConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,13 +88,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Almaty'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
+
+if VERSION == 'deploy':
+    FORCE_SCRIPT_NAME = '/battery/'
+    BASE_URL = '/battery'
+    MEDIA_URL = BASE_URL + '/media/'
+    STATIC_URL =BASE_URL + '/static/'
+elif VERSION == 'development':
+    MEDIA_URL = '/media/'
+    STATIC_URL = '/static/'
+else:
+    raise ValueError('VERSION can be either development or deploy')
+
+
 STATIC_ROOT = '/var/www/static'
-MEDIA_URL = '/media/'
 MEDIA_ROOT = '/var/www/media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -104,6 +117,5 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
 BASE_LOCALHOST_URL = 'http://web:8000/'
 

@@ -9,7 +9,7 @@ class OnlyReplies(models.Model):
     rus = models.TextField(verbose_name='текст на Русском')
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата Последнего посещения')
-
+    is_checked = models.BooleanField(default=False, verbose_name='Проверено')
     def __str__(self):
         return self.name
 
