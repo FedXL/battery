@@ -37,7 +37,7 @@ class ClientBase(models.Model):
             raise ValidationError('Укажите хотя бы одного пользователя')
 
     def __str__(self):
-        return f"{self.user_telegram}|{self.user_watsapp}"
+        return f"{self.user_telegram}"
 
 class Client(ClientBase):
     verbose_name = 'клиент связь с ботом'
