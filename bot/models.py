@@ -36,14 +36,19 @@ class ClientBase(models.Model):
         if not self.user_telegram and not self.user_watsapp:
             raise ValidationError('Укажите хотя бы одного пользователя')
 
+    def __str__(self):
+        return f"{self.user_telegram}|{self.user_watsapp}"
 
 class Client(ClientBase):
     verbose_name = 'клиент связь с ботом'
     verbose_name_plural = 'клиенты связи с ботом'
 
+
+
 class Seller(ClientBase):
     verbose_name = 'продавец связь с ботом'
     verbose_name_plural = 'продавцы связи с ботом'
+
 
 class Message(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
@@ -57,12 +62,14 @@ class ProfileBase(models.Model):
     second_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Фамилия')
     patronymic = models.CharField(max_length=255, null=True, blank=True, verbose_name='Отчество')
     contact_phone = models.CharField(max_length=255, null=True, blank=True, verbose_name='Контактный телефон')
-    contact_email = models.EmailField(null=True, blank=True, verbose_name='Контактный email')
+    contact_email = models.EmailField(null=True, blank=True, verbose_name='Город')
 
     language = models.CharField(max_length=255, null=True, blank=True, verbose_name='Язык')
 
     class Meta:
         abstract = True
+
+
 
 class ClientProfile(ProfileBase):
     client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент')
@@ -70,6 +77,8 @@ class ClientProfile(ProfileBase):
         verbose_name = 'Профиль клиента'
         verbose_name_plural = 'Профили клиентов'
 
+    def __str__(self):
+        return f"{self.client} | {self.first_name} {self.second_name}"
 class SellerProfile(ProfileBase):
     seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец')
 
@@ -81,3 +90,5 @@ class SellerProfile(ProfileBase):
         verbose_name = 'Профиль продавца'
         verbose_name_plural = 'Профили продавцов'
 
+    def __str__(self):
+        return f"{self.seller} | {self.first_name} {self.second_name}"

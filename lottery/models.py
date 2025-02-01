@@ -16,10 +16,8 @@ class Battery(models.Model):
     invoice_telegram_id = models.CharField(max_length=255, verbose_name='Чек', unique=True, null=True,blank=True)
     confirmation_code = models.CharField(max_length=6, verbose_name='Код для продавца',unique=True, null=True, blank=True)
     tech_message = models.TextField(verbose_name='Техническое сообщение', null=True, blank=True)
-
     def __str__(self):
         return self.serial
-
 
 class InvoicePhoto(models.Model):
     battery = models.ForeignKey('lottery.Battery', on_delete=models.CASCADE, verbose_name='Аккумулятор')

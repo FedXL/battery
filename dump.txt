@@ -1,0 +1,7 @@
+pg_dump -U admin -h db -p 5432 -F c -b -v -f battery.dump battery
+
+dropdb -U admin battery
+
+createdb -U admin battery
+
+pg_restore -U admin -d battery battery.dump

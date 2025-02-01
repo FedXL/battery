@@ -31,13 +31,18 @@ class ClientAdmin(admin.ModelAdmin):
 class SellerAdmin(admin.ModelAdmin):
     list_display = ('user_telegram', 'user_watsapp')
     search_fields = ('user_telegram', 'user_watsapp')
-
 @admin.register(ClientProfile)
 class ClientProfileAdmin(admin.ModelAdmin):
     list_display = ('client', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
-    search_fields = ('client', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
+    search_fields = ('client__user_telegram__telegram_id',
+                     'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
 
 @admin.register(SellerProfile)
 class SellerProfileAdmin(admin.ModelAdmin):
     list_display = ('seller', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
-    search_fields = ('seller', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
+    search_fields = ('seller__user_telegram__telegram_id',
+                     'first_name',
+                     'second_name',
+                     'patronymic',
+                     'contact_phone',
+                     'contact_email')
