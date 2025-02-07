@@ -6,7 +6,8 @@ from import_export import resources
 from import_export.admin import ExportMixin
 
 from bot.models import UserTelegram, UserWhatsApp, Client, Seller, ClientProfile, SellerProfile
-from bot.resources import UserTelegramResource, ClientProfileResource, SellerProfileResource
+from bot.resources import UserTelegramResource, ClientResource, \
+    SellerResource
 from bot.tasks import send_message
 from lottery.models import Battery
 
@@ -23,7 +24,7 @@ class UserTelegramAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('telegram_id', 'username', 'created_at', 'updated_at')
     search_fields = ('telegram_id', 'username')
     readonly_fields = ('created_at', 'updated_at')
-    actions = [send_one_message]  # Ваша пользовательская функция действий
+    actions = [send_one_message]
     resource_class = UserTelegramResource
 
 
@@ -46,7 +47,7 @@ class SellerProfileInline(admin.TabularInline):
 
 
 @admin.register(Client)
-class ClientAdmin(admin.ModelAdmin):
+class ClientAdmin(ExportMixin,admin.ModelAdmin):
     list_display = ('user_telegram', 'lottery_link', 'present_type')
     search_fields = ('user_telegram',)
 
@@ -59,15 +60,16 @@ class ClientAdmin(admin.ModelAdmin):
     lottery_link.short_description = 'Lottery Link'
     lottery_link.admin_order_field = 'lottery_winner'
 
+    resource_class = ClientResource
 
 class BatteryInline(admin.TabularInline):
     model = Battery
-    fields = ['serial', 'link_to_battery']  # Only show the serial number and a link
-    readonly_fields = ['serial', 'link_to_battery']  # Make fields readonly
-    extra = 0  # No empty rows for adding new batteries
+    fields = ['serial', 'link_to_battery']
+    readonly_fields = ['serial', 'link_to_battery']
+    extra = 0
 
     def link_to_battery(self, obj):
-        # Generate a clickable link to the battery change view
+
         url = reverse('admin:lottery_battery_change', args=[obj.id])
         return format_html('<a href="{}" target="_blank">{}</a>', url, obj.serial)
 
@@ -75,12 +77,12 @@ class BatteryInline(admin.TabularInline):
 
 
 @admin.register(Seller)
-class SellerAdmin(admin.ModelAdmin):
+class SellerAdmin(ExportMixin,admin.ModelAdmin):
     list_display = ('user_telegram', 'lottery_link', 'present_type', 'rating')
     search_fields = ('user_telegram', 'user_watsapp')
     inlines = [BatteryInline]
+    resource_class = SellerResource
     def get_queryset(self, request):
-        # Annotate the queryset with the count of related batteries
         queryset = super().get_queryset(request)
         queryset = queryset.annotate(battery_count=Count('battery'))
         return queryset
@@ -92,23 +94,26 @@ class SellerAdmin(admin.ModelAdmin):
         return '-'
 
     def rating(self, obj):
-        # Return the annotated battery count
         return obj.battery_count
 
     rating.short_description = 'Рейтинг'
-    rating.admin_order_field = 'battery_count'  # Sort by the annotated field
+    rating.admin_order_field = 'battery_count'
     lottery_link.short_description = 'Lottery Link'
     lottery_link.admin_order_field = 'lottery_winner'
 
+
+
+
+
 @admin.register(ClientProfile)
-class ClientProfileAdmin(ExportMixin,admin.ModelAdmin):
-    list_display = ('client', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
+class ClientProfileAdmin(admin.ModelAdmin):
+    list_display = ('client', 'first_name', 'second_name', 'patronymic',
+                    'contact_phone', 'contact_email')
     search_fields = ('client__user_telegram__telegram_id',
                      'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
-    resource_class = ClientProfileResource
 
 @admin.register(SellerProfile)
-class SellerProfileAdmin(ExportMixin,admin.ModelAdmin):
+class SellerProfileAdmin(admin.ModelAdmin):
     list_display = ('seller', 'first_name', 'second_name', 'patronymic', 'contact_phone', 'contact_email')
     search_fields = ('seller__user_telegram__telegram_id',
                      'first_name',
@@ -117,4 +122,3 @@ class SellerProfileAdmin(ExportMixin,admin.ModelAdmin):
                      'contact_phone',
                      'contact_email')
 
-    resource_class = SellerProfileResource

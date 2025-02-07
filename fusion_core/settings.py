@@ -5,7 +5,7 @@ from import_export.formats.base_formats import XLSX
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-VERSION = 'development'
+VERSION = 'deploy'
 SECRET_KEY = getenv('SECRET_KEY')
 BOT_TOKEN = getenv('BOT_TOKEN')
 
@@ -18,7 +18,7 @@ CSRF_TRUSTED_ORIGINS = ['https://nurbot.kz',
 ]
 
 FEDOR_ID = 716336613
-TELEGRAM_ADMINS = [FEDOR_ID,]
+TELEGRAM_ADMINS = [FEDOR_ID,515207530]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

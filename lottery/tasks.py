@@ -50,9 +50,9 @@ def clients_lottery_start(lottey_id: int):
     try:
         clients = (
             Client.objects.filter(lottery_winner=None)  # SQL: WHERE lottery_winner IS NULL
-            .annotate(num_batteries=Count('battery'))  # SQL: COUNT(battery.id) GROUP BY client.id
+            .annotate(num_batteries=Count('battery_cli'))  # SQL: COUNT(battery.id) GROUP BY client.id
             .filter(num_batteries__gt=0)  # SQL: HAVING COUNT(battery.id) > 0
-            .prefetch_related('battery_set')
+            .prefetch_related('battery_cli')
         )
 
         clients_count = clients.count()
@@ -137,6 +137,12 @@ def sellers_lottery_start(lottey_id: int):
         return "FAIL"
 
 
+@shared_task
+def check_for_extract_invoices():
+    batteries = Battery.objects.filter(invoice_photo__isnull=True).exclude(invoice_telegram_id="")
+    for battery in batteries:
+        extract_invoice.delay(battery.id)
+    return 'OK'
 
 
 

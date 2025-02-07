@@ -3,7 +3,7 @@ from django.db import models
 class Battery(models.Model):
     serial = models.CharField(max_length=255, verbose_name='Серийный номер', unique=True)
     client = models.ForeignKey('bot.Client', on_delete=models.CASCADE,
-                               verbose_name='Клиент')
+                               verbose_name='Клиент',related_name='battery_cli')
     seller = models.ForeignKey('bot.Seller', on_delete=models.CASCADE,
                                verbose_name='Продавец', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Зарегистрирован')
@@ -20,7 +20,8 @@ class Battery(models.Model):
 
 
 class InvoicePhoto(models.Model):
-    battery = models.ForeignKey(Battery, on_delete=models.CASCADE, verbose_name='Аккумулятор')
+    battery = models.ForeignKey(Battery, on_delete=models.CASCADE, verbose_name='Аккумулятор',
+                                related_name='invoice_photo')
     photo = models.ImageField(upload_to='invoice_photos/', verbose_name='Фото чека')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 

@@ -84,7 +84,7 @@ class ProfileBase(models.Model):
 
 class ClientProfile(ProfileBase):
 
-    client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент')
+    client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент',related_name='clientprofile')
 
     class Meta:
         verbose_name = 'Профиль клиента'
@@ -94,7 +94,7 @@ class ClientProfile(ProfileBase):
         return f"{self.client} | {self.first_name} {self.second_name}"
 
 class SellerProfile(ProfileBase):
-    seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец')
+    seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец',related_name='sellerprofile')
     company_address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Адрес компании')
     company_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Название компании')
 
