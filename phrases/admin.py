@@ -9,3 +9,6 @@ class OnlyRepliesAdmin(admin.ModelAdmin):
     search_fields = ('name','description','kaz','rus')
     if settings.VERSION == 'deploy':
         readonly_fields = ('updated_at','name','description')
+
+
+

@@ -1,11 +1,11 @@
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
-
+from import_export.formats.base_formats import XLSX
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-VERSION = 'deploy'
+VERSION = 'development'
 SECRET_KEY = getenv('SECRET_KEY')
 BOT_TOKEN = getenv('BOT_TOKEN')
 
@@ -16,8 +16,9 @@ CSRF_TRUSTED_ORIGINS = ['https://nurbot.kz',
                         'http://127.0.0.1',
                         'http://127.0.0.1:8000',
 ]
-fedor_id = 716336613
 
+FEDOR_ID = 716336613
+TELEGRAM_ADMINS = [FEDOR_ID,]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
     'phrases.apps.PhrasesConfig',
     'services.apps.ServicesConfig',
     'lottery.apps.LotteryConfig',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +123,8 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 BASE_LOCALHOST_URL = 'http://web:8000/'
 
+
+IMPORT_EXPORT_USE_TRANSACTIONS=True
+
+EXPORT_FORMATS = [XLSX]
+IMPORT_FORMATS = []

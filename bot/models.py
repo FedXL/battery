@@ -42,12 +42,25 @@ class ClientBase(models.Model):
 class Client(ClientBase):
     verbose_name = 'клиент связь с ботом'
     verbose_name_plural = 'клиенты связи с ботом'
-
+    lottery_winner = models.ForeignKey('lottery.LotteryClients', on_delete=models.SET_NULL,
+                                       verbose_name='Победитель',null=True, blank=True)
+    PRESENT_TYPE_CHOICES = [
+        ('little', '25000'),
+        ('big', '50000'),
+    ]
+    present_type = models.CharField(max_length=255, choices=PRESENT_TYPE_CHOICES, verbose_name='Тип приза', null=True, blank=True)
 
 
 class Seller(ClientBase):
     verbose_name = 'продавец связь с ботом'
     verbose_name_plural = 'продавцы связи с ботом'
+    lottery_winner = models.ForeignKey('lottery.LotterySellers', on_delete=models.SET_NULL,
+                                       verbose_name='Победитель',null=True, blank=True)
+    PRESENT_TYPE_CHOICES = [
+        ('little', '25000'),
+    ]
+    present_type = models.CharField(max_length=255, choices=PRESENT_TYPE_CHOICES, verbose_name='Тип приза', null=True,
+                                    blank=True)
 
 
 class Message(models.Model):
@@ -57,34 +70,33 @@ class Message(models.Model):
 
 
 class ProfileBase(models.Model):
+
     phone_from_telegram = models.CharField(max_length=255, null=True, blank=True, verbose_name='Телефон привязанный к телеграм аккаунту')
     first_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Имя')
     second_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Фамилия')
     patronymic = models.CharField(max_length=255, null=True, blank=True, verbose_name='Отчество')
     contact_phone = models.CharField(max_length=255, null=True, blank=True, verbose_name='Контактный телефон')
     contact_email = models.EmailField(null=True, blank=True, verbose_name='Город')
-
     language = models.CharField(max_length=255, null=True, blank=True, verbose_name='Язык')
 
     class Meta:
         abstract = True
 
-
-
 class ClientProfile(ProfileBase):
+
     client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент')
+
     class Meta:
         verbose_name = 'Профиль клиента'
         verbose_name_plural = 'Профили клиентов'
 
     def __str__(self):
         return f"{self.client} | {self.first_name} {self.second_name}"
+
 class SellerProfile(ProfileBase):
     seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец')
-
     company_address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Адрес компании')
     company_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Название компании')
-
 
     class Meta:
         verbose_name = 'Профиль продавца'

@@ -7,3 +7,6 @@ class LotteryConfig(AppConfig):
 
     class Meta:
         verbose_name = 'Лотерея'
+
+    def ready(self):
+        import lottery.signals

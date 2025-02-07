@@ -4,4 +4,4 @@ dropdb -U admin battery
 
 createdb -U admin battery
 
-pg_restore -U admin -d battery battery.dump
+pg_restore -U admin -d battery -h db my_dump.sql
