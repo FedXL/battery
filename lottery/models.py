@@ -61,7 +61,7 @@ class LotteryClients(models.Model):
         verbose_name_plural = 'Розыгрыши среди клиентов'
 
     def __str__(self):
-        return f" {self.id} | {str(self.name)}"
+        return f"{str(self.name)}"
 
 class LotterySellers(models.Model):
     name = models.CharField(max_length=255, verbose_name='Розыгрыш', unique=True)

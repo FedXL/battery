@@ -45,11 +45,16 @@ class Client(ClientBase):
     lottery_winner = models.ForeignKey('lottery.LotteryClients', on_delete=models.SET_NULL,
                                        verbose_name='Победитель',null=True, blank=True)
     PRESENT_TYPE_CHOICES = [
-        ('little', '25000'),
-        ('big', '50000'),
+        ('25000', '25000'),
+        ('50000', '50000'),
     ]
+
     present_type = models.CharField(max_length=255, choices=PRESENT_TYPE_CHOICES, verbose_name='Тип приза', null=True, blank=True)
 
+
+    class Meta:
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
 class Seller(ClientBase):
     verbose_name = 'продавец связь с ботом'
@@ -57,11 +62,14 @@ class Seller(ClientBase):
     lottery_winner = models.ForeignKey('lottery.LotterySellers', on_delete=models.SET_NULL,
                                        verbose_name='Победитель',null=True, blank=True)
     PRESENT_TYPE_CHOICES = [
-        ('little', '25000'),
+        ('25000', '25000'),
     ]
     present_type = models.CharField(max_length=255, choices=PRESENT_TYPE_CHOICES, verbose_name='Тип приза', null=True,
                                     blank=True)
 
+    class Meta:
+        verbose_name = "Покупатель"
+        verbose_name_plural = "Покупатели"
 
 class Message(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
@@ -94,6 +102,7 @@ class ClientProfile(ProfileBase):
         return f"{self.client} | {self.first_name} {self.second_name}"
 
 class SellerProfile(ProfileBase):
+
     seller = models.OneToOneField(Seller, on_delete=models.CASCADE, verbose_name='Продавец',related_name='sellerprofile')
     company_address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Адрес компании')
     company_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Название компании')

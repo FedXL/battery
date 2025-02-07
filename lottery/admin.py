@@ -4,8 +4,9 @@ from import_export.admin import ExportMixin
 
 from bot.resources import BatteryResourses
 from lottery.models import (Battery, InvalidTry, TelegramMessage, InvoicePhoto
-, MessageTemplate, LotteryClients, LotterySellers)
-from lottery.tasks import extract_invoice, clients_lottery_start, sellers_lottery_start
+, MessageTemplate, LotterySellers, LotteryClients)
+from lottery.tasks import extract_invoice, clients_lottery_start, sellers_lottery_start, send_notification_to_sellers, \
+    send_notification_to_clients
 
 
 def extract_invoice_check(modeladmin, request, queryset):
@@ -17,16 +18,25 @@ def start_client_lottery(modeladmin, request, queryset):
         return "Выберите только один розыгрыш"
     for lottery in queryset:
         clients_lottery_start.delay(lottery.id)
-    start_client_lottery.short_description = "Запуск Розыгрыша для Покупателей"
+start_client_lottery.short_description = "Запуск Розыгрыша для Покупателей"
 
 def start_seller_lottery(modeladmin, request, queryset):
     if queryset.count() > 1:
         return "Выберите только один розыгрыш"
     for lottery in queryset:
         sellers_lottery_start.delay(lottery.id)
-    start_seller_lottery.short_description = "Запуск Розыгрыша для Продавцов"
+start_seller_lottery.short_description = "Запуск Розыгрыша для Продавцов"
 
 
+def winners_notification_sellers(modeladmin, request, queryset):
+    for lottery in queryset:
+        send_notification_to_sellers.delay(lottery.id)
+winners_notification_sellers.short_description = "Отправить уведомления победителям (продавцам)"
+
+def winners_notification_clients(modeladmin, request, queryset):
+    for lottery in queryset:
+        send_notification_to_clients.delay(lottery.id)
+winners_notification_clients.short_description = "Отправить уведомления победителям (клиентам)"
 
 @admin.register(Battery)
 class BatteryAdmin(ExportMixin,admin.ModelAdmin):
@@ -46,6 +56,7 @@ class BatteryAdmin(ExportMixin,admin.ModelAdmin):
         return format_html(images_html)
     display_invoices.short_description = "Фото чеков"
     resource_class = BatteryResourses
+
 @admin.register(InvalidTry)
 class InvalidTryAdmin(admin.ModelAdmin):
     list_display = ('number','telegram_user', 'created_at')
@@ -64,14 +75,31 @@ class InvoicePhotoAdmin(admin.ModelAdmin):
 @admin.register(MessageTemplate)
 class MessageTemplateAdmin(admin.ModelAdmin):
     list_display = ('template_name', 'message')
+    readonly_fields = ('template_name',)
+
+
+def send_notifications_to_clients(modeladmin, request, queryset):
+    for lottery in queryset:
+        send_notification_to_clients.delay(lottery.id)
+
+send_notifications_to_clients.short_description = "Отправить уведомления победителям (покупатели)"
+
+def send_notifications_to_sellers(modeladmin, request, queryset):
+    for lottery in queryset:
+        send_notification_to_sellers.delay(lottery.id)
+
+send_notifications_to_sellers.short_description = "Отправить уведомления победителям (продавцам)"
 
 
 @admin.register(LotteryClients)
 class LotteryClientsAdmin(admin.ModelAdmin):
     list_display = ('name','little_prize','big_prize')
-    actions = [start_client_lottery]
+    actions = [start_client_lottery, send_notification_to_clients]
+
 
 @admin.register(LotterySellers)
 class LotterySellersAdmin(admin.ModelAdmin):
     list_display = ('name','little_prize')
-    actions = [start_seller_lottery]
+    actions = [start_seller_lottery, send_notifications_to_sellers]
+
+

@@ -109,14 +109,8 @@ def restart_telegram_bot():
         service.save()
         return "Ответ не пришел от Tower Tower в опасности"
 
-
-
 load_dotenv()
-
-# Telegram bot chat ID
 CHAT_ID = settings.TELEGRAM_ADMINS
-
-# Database credentials
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -127,11 +121,9 @@ DB_PORT = os.getenv("DB_PORT")
 @shared_task
 def create_and_send_db_dump():
     dump_file_path = f"/tmp/dump_{datetime.now().strftime('%Y%m%d%H%M%S')}.sql"
-
     try:
         env = os.environ.copy()
         env["PGPASSWORD"] = DB_PASSWORD
-
         dump_command = [
             "pg_dump",
             "-h", DB_HOST,
@@ -141,9 +133,7 @@ def create_and_send_db_dump():
             "-b",
             "-v",
             "-f", dump_file_path,
-            DB_NAME
-        ]
-
+            DB_NAME]
         subprocess.run(dump_command, check=True, env=env)
 
         with open(dump_file_path, "rb") as dump_file:
@@ -159,3 +149,5 @@ def create_and_send_db_dump():
         if os.path.exists(dump_file_path):
             os.remove(dump_file_path)
             print(f"Deleted dump file: {dump_file_path}")
+
+

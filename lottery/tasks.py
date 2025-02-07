@@ -5,7 +5,9 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Count
 from bot.bot_core.bot_core import sync_bot
+from bot.bot_core.collections.variables import Templates
 from bot.models import Client, Seller
+from bot.tasks import send_message
 from logs.my_logger import my_logger
 from lottery.models import Battery, InvoicePhoto, LotteryClients, LotterySellers
 from lottery.utils import get_random_winners
@@ -142,6 +144,25 @@ def check_for_extract_invoices():
     batteries = Battery.objects.filter(invoice_photo__isnull=True).exclude(invoice_telegram_id="")
     for battery in batteries:
         extract_invoice.delay(battery.id)
+    return 'OK'
+
+@shared_task
+def send_notification_to_clients(lottery_id):
+    lottery = LotteryClients.objects.get(id=lottery_id)
+    clients_25 = Client.objects.filter(lottery_winner=lottery, present_type='25000')
+    clients_50 = Client.objects.filter(lottery_winner=lottery, present_type='50000')
+    for client in clients_25:
+        send_message.delay(client.user_telegram.telegram_id, Templates.client_win_25000)
+    for client in clients_50:
+        send_message.delay(client.user_telegram.telegram_id, Templates.client_win_50000)
+    return 'OK'
+
+@shared_task
+def send_notification_to_sellers(lottery_id):
+    lottery = LotterySellers.objects.get(id=lottery_id)
+    sellers_25 = Seller.objects.filter(lottery_winner=lottery,present_type='25000')
+    for seller in sellers_25:
+        send_message.delay(seller.user_telegram.telegram_id, Templates.seller_win_25000)
     return 'OK'
 
 
