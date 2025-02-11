@@ -68,8 +68,8 @@ class Seller(ClientBase):
                                     blank=True)
 
     class Meta:
-        verbose_name = "Покупатель"
-        verbose_name_plural = "Покупатели"
+        verbose_name = "Продавец"
+        verbose_name_plural = "Продавцы"
 
 class Message(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')

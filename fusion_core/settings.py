@@ -5,7 +5,7 @@ from import_export.formats.base_formats import XLSX
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-VERSION = 'deploy'
+VERSION = 'development'
 SECRET_KEY = getenv('SECRET_KEY')
 BOT_TOKEN = getenv('BOT_TOKEN')
 

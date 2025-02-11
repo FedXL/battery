@@ -1,4 +1,3 @@
-# resources.py
 from lottery.models import Battery
 from .models import UserTelegram, Client, ClientProfile, SellerProfile, Seller
 from import_export import resources, fields
@@ -14,14 +13,13 @@ class UserTelegramResource(resources.ModelResource):
 
 class ClientResource(resources.ModelResource):
 
-
     lottery_winner = fields.Field(
         column_name='Победитель',
         attribute='lottery_winner')
+
     present_type = fields.Field(
         column_name='Тип приза',
         attribute='present_type')
-
 
     profile_first_name = fields.Field(
         column_name='Имя',
@@ -51,10 +49,8 @@ class ClientResource(resources.ModelResource):
         column_name='Telegram ID',
         attribute='user_telegram__telegram_id'
     )
-
     rating = fields.Field(
         column_name='Количество батарей')
-
 
     class Meta:
         model = Client
@@ -70,6 +66,7 @@ class ClientResource(resources.ModelResource):
             'profile_language',
             'rating',
         )
+
         export_order = (
             'telegram_id',
             'lottery_winner',
@@ -83,6 +80,7 @@ class ClientResource(resources.ModelResource):
             'rating',
         )
 
+
     def get_queryset(self):
         return (
             Client.objects.select_related('clientprofile', 'user_telegram')# Подсчет батарей
@@ -90,8 +88,6 @@ class ClientResource(resources.ModelResource):
 
     def dehydrate_rating(self, client):
         total_batteries = client.battery_cli.count()
-
-
         return total_batteries
 
 

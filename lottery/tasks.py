@@ -84,14 +84,14 @@ def clients_lottery_start(lottey_id: int):
                     my_logger.info(f"winner1: {winner1}")
                     client = clients_dict[winner1]
                     client.lottery_winner = lottery
-                    client.present_type = 'big'
+                    client.present_type = '50000'
                     client.save()
             if little_winners:
                 for winner2 in little_winners:
                     my_logger.info(f"winner2: {winner2}")
                     client = clients_dict[winner2]
                     client.lottery_winner = lottery
-                    client.present_type = 'little'
+                    client.present_type = '25000'
                     client.save()
 
     except Exception as e:
@@ -127,7 +127,7 @@ def sellers_lottery_start(lottey_id: int):
         with transaction.atomic():
             for num, winner in enumerate(winners, start=1):
                 winner.lottery_winner = lottery
-                winner.present_type = 'little'
+                winner.present_type = '25000'
                 winner.save()
         lottery.report = 'Статус: Успешно'
         lottery.save()
