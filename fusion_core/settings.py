@@ -5,11 +5,11 @@ from import_export.formats.base_formats import XLSX
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-VERSION = 'development'
+VERSION = 'deploy'
 SECRET_KEY = getenv('SECRET_KEY')
 BOT_TOKEN = getenv('BOT_TOKEN')
 
-DEBUG = True
+DEBUG = False
 CSRF_COOKIE_SECURE = False
 ALLOWED_HOSTS = ['127.0.0.1','nurbot.kz','www.nurbot.kz']
 CSRF_TRUSTED_ORIGINS = ['https://nurbot.kz',

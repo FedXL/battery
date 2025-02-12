@@ -38,7 +38,6 @@ class ClientBase(models.Model):
 
     def __str__(self):
         return f"{self.user_telegram}"
-
 class Client(ClientBase):
     verbose_name = 'клиент связь с ботом'
     verbose_name_plural = 'клиенты связи с ботом'
@@ -47,6 +46,7 @@ class Client(ClientBase):
     PRESENT_TYPE_CHOICES = [
         ('25000', '25000'),
         ('50000', '50000'),
+        ('1000000', '1000000'),
     ]
 
     present_type = models.CharField(max_length=255, choices=PRESENT_TYPE_CHOICES, verbose_name='Тип приза', null=True, blank=True)
@@ -92,7 +92,10 @@ class ProfileBase(models.Model):
 
 class ClientProfile(ProfileBase):
 
-    client = models.OneToOneField(Client, on_delete=models.CASCADE, verbose_name='Клиент',related_name='clientprofile')
+    client = models.OneToOneField(Client,
+                                  on_delete=models.CASCADE,
+                                  verbose_name='Клиент',
+                                  related_name='clientprofile')
 
     class Meta:
         verbose_name = 'Профиль клиента'

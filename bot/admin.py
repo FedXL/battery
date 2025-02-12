@@ -49,12 +49,12 @@ class UserWhatsAppAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
-class ClientProfileInline(admin.TabularInline):
+class ClientProfileInline(admin.StackedInline):
     model = ClientProfile
     extra = 0
 
 
-class SellerProfileInline(admin.TabularInline):
+class SellerProfileInline(admin.StackedInline):
     model = SellerProfile
     extra = 0
 
@@ -83,7 +83,7 @@ class ClientAdmin(ExportMixin,admin.ModelAdmin):
             return format_html('<a href="{}">{}</a>', url, obj.lottery_winner)
         return '-'
 
-    inlines = [BatteryInline]
+    inlines = [BatteryInline, ClientProfileInline]
     lottery_link.short_description = 'Lottery Link'
     lottery_link.admin_order_field = 'lottery_winner'
     resource_class = ClientResource
@@ -93,7 +93,7 @@ class ClientAdmin(ExportMixin,admin.ModelAdmin):
 class SellerAdmin(ExportMixin,admin.ModelAdmin):
     list_display = ('user_telegram', 'lottery_link', 'present_type', 'rating')
     search_fields = ('user_telegram__telegram_id',)
-    inlines = [BatteryInline]
+    inlines = [BatteryInline, SellerProfileInline]
     actions = [send_one_message_for_client_or_seller]
     resource_class = SellerResource
     def get_queryset(self, request):

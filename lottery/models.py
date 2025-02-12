@@ -54,7 +54,11 @@ class LotteryClients(models.Model):
     name = models.CharField(max_length=255, verbose_name='Розыгрыш', unique=True)
     little_prize = models.IntegerField(verbose_name='Количество призов 25000')
     big_prize = models.IntegerField(verbose_name='Количество призов 50000')
+    super_prize = models.BooleanField(verbose_name='Розыгрыш 1000000 (если активно разыгрывается среди клиентов '
+                                                   'зарегистрировавших хотя бы один аккумулятор',default=False)
     report = models.TextField(verbose_name='Отчет о розыгрыше', null=True, blank=True)
+
+
 
     class Meta:
         verbose_name = 'Розыгрыш среди клиентов'

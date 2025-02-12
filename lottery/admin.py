@@ -105,9 +105,11 @@ send_notifications_to_sellers.short_description = "Отправить уведо
 
 @admin.register(LotteryClients)
 class LotteryClientsAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('name','little_prize','big_prize')
+    list_display = ('name','little_prize','big_prize','super_prize')
     actions = [start_client_lottery, send_notification_to_clients]
     resource_class = CustomResource
+
+
 
 @admin.register(LotterySellers)
 class LotterySellersAdmin(ExportMixin, admin.ModelAdmin):
