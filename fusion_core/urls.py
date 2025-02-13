@@ -10,5 +10,4 @@ admin.site.index_title = "Добро пожаловать в Lottery"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('bot/', include('bot.urls')),
 ]

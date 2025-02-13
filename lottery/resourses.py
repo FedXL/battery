@@ -5,14 +5,13 @@ from tablib import Dataset
 from lottery.models import LotterySellers, LotteryClients
 from bot.models import Seller,Client
 
-class CustomResource(Resource):
+class ClientsResourceWin(Resource):
     class Meta:
-        fields = ('Розыгрыш',)
+        fields = ('Покупатели',)
 
     def export(self, queryset=None, *args, **kwargs):
         dataset = Dataset()
         dataset.headers = self.get_export_headers()
-        lottery_sellers = LotterySellers.objects.last()
         lottery_clients = LotteryClients.objects.last()
 
         if lottery_clients:
@@ -23,17 +22,8 @@ class CustomResource(Resource):
                 .annotate(total_batteries=Count('battery_cli'))
             )
 
-        if lottery_sellers:
-            sellers = (
-                Seller.objects
-                .filter(lottery_winner=lottery_sellers)
-                .prefetch_related('sellerprofile', 'battery')
-                .annotate(total_batteries=Count('battery'))
-            )
-
-
-        if not lottery_sellers and not lottery_clients:
-            dataset.append(['Розыгрыш не проводился'])
+        if not lottery_clients:
+            dataset.append(['Розыгрыш не проводился','Добавьте розыгрыш'])
             return dataset
 
 
@@ -53,6 +43,43 @@ class CustomResource(Resource):
                                 client.clientprofile.contact_phone,
                                 client.clientprofile.contact_email,
                                 client.clientprofile.language,"-","-",client.total_batteries])
+        return dataset
+
+    @classmethod
+    def get_display_name(cls):
+        time = timezone.now()
+        return f"Результаты розыгрыша покупателей {time.strftime('%d.%m.%Y %H:%M')}"
+
+    def get_export_filename(self, file_format):
+        time = timezone.now().strftime('%d-%m-%Y_%H-%M')
+        return f"Результаты_розыгрыша_покупателей_{time}.{file_format.get_extension()}"
+
+
+class SellersResourceWin(Resource):
+    class Meta:
+        fields = ('Продавцы',)
+
+    def export(self, queryset=None, *args, **kwargs):
+        dataset = Dataset()
+        dataset.headers = self.get_export_headers()
+        lottery_sellers = LotterySellers.objects.last()
+
+        if lottery_sellers:
+            sellers = (
+                Seller.objects
+                .filter(lottery_winner=lottery_sellers)
+                .prefetch_related('sellerprofile', 'battery')
+                .annotate(total_batteries=Count('battery'))
+            )
+
+        if not lottery_sellers:
+            dataset.append(['Розыгрыш не проводился', ])
+            return dataset
+
+        dataset.append(['Тип участника', 'Telegram ID', 'Победитель', 'Тип приза', 'Имя', 'Фамилия', 'Отчество',
+                        'Телефон', 'Email', 'Язык', 'Название компании', 'Адрес компании', 'Количество батарей'])
+
+
         if sellers:
             for seller in sellers:
                 dataset.append(['Продавец',
@@ -69,10 +96,8 @@ class CustomResource(Resource):
                                 seller.sellerprofile.company_address,
                                 seller.total_batteries
                                 ])
-
         return dataset
 
-    # Добавляем этот метод, чтобы избежать ошибки
     @classmethod
     def get_display_name(cls):
         time = timezone.now()

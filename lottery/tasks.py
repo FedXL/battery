@@ -46,39 +46,39 @@ def extract_invoice(battery_id: int) -> None:
         print(f"[CRITICAL] extract_invoice error: {str(e)}")
 
 
+
 @shared_task
-def clients_lottery_start(lottey_id: int):
-    lottery = LotteryClients.objects.get(id=lottey_id)
+def clients_lottery_start(lottery_id: int):
+    lottery = LotteryClients.objects.get(id=lottery_id)
     little_count = lottery.little_prize
     big_count = lottery.big_prize
     super_prize = lottery.super_prize
 
     try:
         clients = (
-            Client.objects.filter(lottery_winner=None)  # SQL: WHERE lottery_winner IS NULL
-            .annotate(num_batteries=Count('battery_cli'))  # SQL: COUNT(battery.id) GROUP BY client.id
-            .filter(num_batteries__gt=0)  # SQL: HAVING COUNT(battery.id) > 0
+            Client.objects.filter(lottery_winner=None)
+            .annotate(num_batteries=Count('battery_cli'))
+            .filter(num_batteries__gt=0)
             .prefetch_related('battery_cli')
         )
         clients_count = clients.count()
-        clients_dict = {num:client for num, client in enumerate(clients, start=1)}
+        clients_dict = {num: client for num, client in enumerate(clients, start=1)}
     except Exception as e:
         my_logger.error(f"Ошибка при выборе победителей: {e}")
-        lottery.report = f"Ошибка при querysetА списка победителей: {e}"
+        lottery.report = f"Ошибка при выборке списка победителей: {e}"
         return 'FAIL'
+
     try:
         if not super_prize:
-            big_winners, little_winners = get_random_winners(clients_count=clients_count,
-                                                           winners_little_count=little_count,
-                                                           winners_big_count=big_count)
-            my_logger.info(f"clients_count: {clients_count}")
-            my_logger.info(f"big_winners: {big_winners}")
-            my_logger.info(f"little_winners: {little_winners}")
+            big_winners, little_winners = get_random_winners(
+                clients_count=clients_count,
+                winners_little_count=little_count,
+                winners_big_count=big_count
+            )
             report = (f"Статус: Успешно\n"
                       f"Розыгрыш {lottery.name}\n"
                       f"Призов разыграно 25000: {little_count}\n"
                       f"Призов разыграно 50000: {big_count}\n")
-
     except Exception as e:
         my_logger.error(f"Ошибка при выборе победителей: {e}")
         report = f"Ошибка при формировании списка победителей: {e}"
@@ -87,34 +87,31 @@ def clients_lottery_start(lottey_id: int):
         return 'FAIL'
 
     try:
-        if super_prize:
-            super_winner = random.randint(1, clients_count)
-            super_client = clients_dict[super_winner]
-            super_client.lottery_winner = lottery
-            super_client.present_type = '1000000'
-            report = (f"Статус: Успешно\n"
-                      f"Розыгрыш {lottery.name}\n"
-                      f"Призов разыграно 1000000: 1\n")
-            super_client.save()
-        else:
-            with transaction.atomic():
-                if big_winners:
-                    for winner1 in big_winners:
-                        my_logger.info(f"winner1: {winner1}")
-                        client = clients_dict[winner1]
-                        client.lottery_winner = lottery
-                        client.present_type = '50000'
-                        client.save()
+        with transaction.atomic():
+            if super_prize:
+                super_winner = random.randint(1, clients_count)
+                super_client = clients_dict[super_winner]
+                super_client.lottery_winner = lottery
+                super_client.present_type = '1000000'
+                super_client.save()
+                report = (f"Статус: Успешно\n"
+                          f"Розыгрыш {lottery.name}\n"
+                          f"Призов разыграно 1000000: 1\n")
+            else:
+                winners = []
+                for winner_id in big_winners:
+                    client = clients_dict[winner_id]
+                    client.lottery_winner = lottery
+                    client.present_type = '50000'
+                    winners.append(client)
 
-                if little_winners:
-                    for winner2 in little_winners:
-                        my_logger.info(f"winner2: {winner2}")
-                        client = clients_dict[winner2]
-                        client.lottery_winner = lottery
-                        client.present_type = '25000'
-                        client.save()
+                for winner_id in little_winners:
+                    client = clients_dict[winner_id]
+                    client.lottery_winner = lottery
+                    client.present_type = '25000'
+                    winners.append(client)
 
-
+                Client.objects.bulk_update(winners, ['lottery_winner', 'present_type'])
     except Exception as e:
         my_logger.error(f"Ошибка при сохранении победителей: {e}")
         report = f"Ошибка при сохранении результатов: {e}"
@@ -126,36 +123,41 @@ def clients_lottery_start(lottey_id: int):
     lottery.save()
     return 'OK'
 
+
 @shared_task
 def sellers_lottery_start(lottey_id: int):
     lottery = LotterySellers.objects.get(id=lottey_id)
     count_of_winners = lottery.little_prize
     try:
-        sellers=(
-            Seller.objects.filter(lottery_winner=None)  # SQL: WHERE lottery_winner IS NULL
-            .annotate(num_batteries=Count('battery'))  # SQL: COUNT(battery.id) GROUP BY client.id
-            .filter(num_batteries__gt=0)  # SQL: HAVING COUNT(battery.id) > 0
+        sellers = (
+            Seller.objects.filter(lottery_winner=None)  # WHERE lottery_winner IS NULL
+            .annotate(num_batteries=Count('battery'))  # COUNT(battery.id) GROUP BY seller.id
+            .filter(num_batteries__gt=0)  # HAVING COUNT(battery.id) > 0
             .prefetch_related('battery')
             .order_by('-num_batteries')
         )
-        my_logger.info('Из скольких продавцов выбираем победителей')
-        winners = sellers[:count_of_winners]
+        my_logger.info(f'Из скольких продавцов выбираем победителей: {sellers.count()}')
+        winners = list(sellers[:count_of_winners])
     except Exception as e:
         my_logger.error(f"Ошибка при выборе победителей: {e}")
         lottery.report = f"Ошибка при формировании списка победителей: {e}"
+        lottery.save()
         return 'FAIL'
+
     try:
         with transaction.atomic():
-            for num, winner in enumerate(winners, start=1):
+            for winner in winners:
                 winner.lottery_winner = lottery
                 winner.present_type = '25000'
-                winner.save()
+
+            Seller.objects.bulk_update(winners, ['lottery_winner', 'present_type'])
+
         lottery.report = 'Статус: Успешно'
         lottery.save()
         return 'OK'
     except Exception as e:
         my_logger.error(f"Ошибка при сохранении победителей: {e}")
-        lottery.report = f"Ошибка при сохранении результатов : {e}"
+        lottery.report = f"Ошибка при сохранении результатов: {e}"
         lottery.save()
         return "FAIL"
 

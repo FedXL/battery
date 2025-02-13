@@ -5,7 +5,7 @@ from import_export.admin import ExportMixin
 from bot.resources import BatteryResourses
 from lottery.models import (Battery, InvalidTry, TelegramMessage, InvoicePhoto
 , MessageTemplate, LotterySellers, LotteryClients)
-from lottery.resourses import  CustomResource
+from lottery.resourses import  SellersResourceWin, ClientsResourceWin
 from lottery.tasks import (extract_invoice, clients_lottery_start,
                            sellers_lottery_start, send_notification_to_sellers, send_notification_to_clients)
 
@@ -107,7 +107,7 @@ send_notifications_to_sellers.short_description = "Отправить уведо
 class LotteryClientsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name','little_prize','big_prize','super_prize')
     actions = [start_client_lottery, send_notification_to_clients]
-    resource_class = CustomResource
+    resource_class = ClientsResourceWin
 
 
 
@@ -115,7 +115,7 @@ class LotteryClientsAdmin(ExportMixin, admin.ModelAdmin):
 class LotterySellersAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name','little_prize')
     actions = [start_seller_lottery, send_notifications_to_sellers]
-    resource_class = CustomResource
+    resource_class = SellersResourceWin
 
 
 
